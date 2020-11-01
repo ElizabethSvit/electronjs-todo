@@ -24,12 +24,21 @@
     }
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
+    "@react-navigation/native": "^5.8.2",
+    "@react-navigation/stack": "^5.11.1",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "electron-is-dev": "^1.2.0",
+    "fontsource-roboto": "^3.0.3",
+    "level": "^6.0.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-level-count": "^1.2.6",
+    "react-level-list": "^1.1.0",
+    "react-level-value": "^1.0.0",
     "react-scripts": "4.0.0",
     "web-vitals": "^0.2.4"
   },

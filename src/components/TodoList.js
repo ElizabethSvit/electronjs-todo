@@ -1,21 +1,30 @@
 import './TodoList.css';
 import React from 'react';
 import {IconButton, Button, Card, Typography, TextField, Checkbox, Tabs, Tab, Paper } from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 class TodoList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            listItems: [],
+            listItems: this.props.list.items || [],
             showItems: 'all',
             inputText: '',
             value: 0,
         }
     }
     componentDidMount() {
+        console.log('did mount');
+        // this.setState({listItems: this.props.list.items});
         // const listItems = localStorage.getItem('rememberMe') === 'true';
         // const user = rememberMe ? localStorage.getItem('user') : '';
         // this.setState({ user, rememberMe });
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.list.items !== this.props.list.items) {
+            this.setState({listItems: this.props.list.items || []});
+        }
     }
 
     handleChange = (event, newValue) => {
@@ -34,11 +43,20 @@ class TodoList extends React.Component {
         });
     };
 
+    onRemoveItem = (item) => {
+        this.setState({listItems: this.state.listItems.filter(el => el.code !== item.code)});
+    };
+
     renderListItem = (listItem) => {
-        return (<div className="todo__list-item" key={listItem.code} onClick={() => this.onCheckItem(listItem)}>
-            <Checkbox color="primary" checked={listItem.checked}/>
-            <div className={listItem.checked && "todo__list-item_done"} style={{cursor: 'pointer'}}>{listItem.text}</div>
-        </div>);
+        return (
+            <div className="todo__list-item" key={listItem.code}>
+                <Checkbox color="primary" checked={listItem.checked} onClick={() => this.onCheckItem(listItem)}/>
+                <div className={listItem.checked ? "todo__list-item_done" : ""} style={{cursor: 'pointer', wordBreak: 'break-word'}}>{listItem.text}</div>
+                <IconButton color="primary" aria-label="upload picture" component="span" style={{marginLeft: 'auto'}} onClick={() => this.onRemoveItem(listItem)}>
+                    <DeleteIcon />
+                </IconButton>
+            </div>
+        );
     };
 
     showCompleted = () => {
@@ -61,7 +79,7 @@ class TodoList extends React.Component {
                         {code: Math.random(), checked: false, text: this.state.inputText}]
                 });
                 document.getElementById('item-input').value = '';
-                this.setState({inputText: ''});
+                this.setState({inputText: ''}, () => this.props.updateListItems(this.state.listItems));
             }
         }
     };
@@ -69,23 +87,23 @@ class TodoList extends React.Component {
     renderItems = () => {
         switch (this.state.showItems) {
             case 'all':
-                return this.state.listItems.map(item => this.renderListItem(item));
+                return this.state.listItems?.map(item => this.renderListItem(item)) || [];
             case 'completed':
-                return this.state.listItems.map(item => {
+                return this.state.listItems?.map(item => {
                     if (item.checked) return this.renderListItem(item);
-                });
+                }) || [];
             case 'process':
-                return this.state.listItems.map(item => {
+                return this.state.listItems?.map(item => {
                     if (!item.checked) return this.renderListItem(item);
-                });
+                }) || [];
             default:
                 return;
         }
     };
 
     render() {
-        return (
-            <div className="todo">
+        return (Object.keys(this.props.list).length ?
+                (<div className="todo">
                 <Typography gutterBottom variant="h5" component="h2" style={{color: 'rgba(0, 0, 0, 0.87)'}}>
                     {this.props.list.name}
                 </Typography>
@@ -95,7 +113,7 @@ class TodoList extends React.Component {
                                    onChange={(event) => this.setState({inputText: event.target.value})} onKeyDown={this.addItem}/>
                     </div>
                     <div className="todo__list-scroll">
-                        {this.renderItems()}
+                        {this.renderItems(this.state.listItems)}
                     </div>
                     <Paper style={{position: 'absolute', bottom: '10px', left: '10px', right: '10px'}}>
                         <Tabs
@@ -112,7 +130,7 @@ class TodoList extends React.Component {
                         </Tabs>
                     </Paper>
                 </Card>
-            </div>
+            </div>) : <></>
         )
     }
 }

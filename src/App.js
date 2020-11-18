@@ -3,7 +3,6 @@ import TodoList from "../src/components/TodoList";
 import React, {useEffect, useState} from 'react';
 import {
     Divider,
-    IconButton,
     Button,
     Typography,
     Dialog,
@@ -14,31 +13,36 @@ import {
 } from '@material-ui/core';
 import LeftBar from "./components/LeftBar";
 import AddIcon from "@material-ui/icons/Add";
-import {generateUniqueId} from "./utils.js";
+import {generateUniqueId, getHumanReadableDate} from "./utils";
+import Fab from "@material-ui/core/Fab/Fab";
 
-const CHARACTER_LIMIT = 70;
+const CHARACTER_LIMIT = 60;
 
 function App() {
     const [lists, setLists] = useState(JSON.parse(localStorage.getItem('lists')) || []);
-    const [currentList, setCurrentList] = useState({});
+    const [currentList, setCurrentList] = useState(lists[0] || {});
     const [backdrop, showBackdrop] = useState(false);
     const [newListName, setListName] = useState('');
     useEffect(() => {
         localStorage.setItem('lists', JSON.stringify(lists));
-        console.log(lists);
     }, [lists]);
-    useEffect(() => {
-        console.log('currentlist', currentList);
-    }, [currentList]);
+    // useEffect(() => {
+    //     console.log('currentlist', currentList);
+    // }, [currentList]);
 
     const createNewList = async () => {
-        let year = new Date().getFullYear();
-        let month = new Date().getMonth() + 1;
-        let day = new Date().getDate();
-        let humanDate = day + '-' + month + '-' + year;
+        let humanDate = getHumanReadableDate();
         let id = generateUniqueId();
-        setLists([...lists, {id, name: newListName, date: 'Создан ' + humanDate}]);
-        setCurrentList({id, name: newListName, items: []});
+
+        const listsCopy = [...lists];
+        for (let list in listsCopy) {
+            if (listsCopy[list].id === currentList.id) {
+                listsCopy[list].items = currentList.items;
+                listsCopy[list].active = false;
+            }
+        }
+        setLists([...listsCopy, {id, name: newListName, date: 'Создан ' + humanDate, active: true, favorite: false}]);
+        setCurrentList({id, name: newListName, items: [], active: true, favorite: false});
         showBackdrop(false);
     };
 
@@ -50,15 +54,27 @@ function App() {
         // сохраняем все из текущего в общие
         const listsCopy = [...lists];
         for (let list in listsCopy) {
-            console.log(list);
             if (listsCopy[list].id === currentList.id) {
                 listsCopy[list].items = currentList.items;
+                listsCopy[list].active = false;
             }
         }
-        console.log(listsCopy);
         setLists(listsCopy);
         // переключаемся на новый
+        newList.active = true;
         setCurrentList(newList);
+    };
+
+    const onMakeFavorite = (currList) => {
+        console.log('currList', currList);
+        const listsCopy = [...lists];
+        for (let list in listsCopy) {
+            if (listsCopy[list].id === currList.id) {
+                listsCopy[list].favorite = !listsCopy[list].favorite;
+                console.log('listsCopy[list]', listsCopy[list]);
+            }
+        }
+        setLists(listsCopy);
     };
 
     return (
@@ -94,16 +110,16 @@ function App() {
                     <Typography gutterBottom variant="h4" style={{color: 'rgba(0, 0, 0, 0.87)', margin: 0}}>
                         Все списки
                     </Typography>
-                    <IconButton color="primary" aria-label="add list" style={{marginRight: 40}}
-                                onClick={() => {showBackdrop(true); onListClick(currentList);}}>
+                    <Fab color="primary" aria-label="Add" style={{marginRight: 40}}
+                         onClick={() => {showBackdrop(true); onListClick(currentList);}}>
                         <AddIcon />
-                    </IconButton>
+                    </Fab>
                 </div>
-                <LeftBar lists={lists} onClick={newList => onListClick(newList)}/>
+                <LeftBar lists={lists} onClick={newList => onListClick(newList)} onMakeFavorite={onMakeFavorite}/>
             </div>
             <Divider orientation="vertical" flexItem style={{height: '100%'}}/>
             <div style={{display: 'flex', justifyContent: 'center', width: '100%'}}>
-                <TodoList list={currentList} updateListItems={updateListItems} />
+                <TodoList list={currentList} updateListItems={updateListItems}/>
             </div>
         </div>
     );

@@ -1,6 +1,6 @@
 import './TodoList.css';
 import React from 'react';
-import {IconButton, Button, Card, Typography, TextField, Checkbox, Tabs, Tab, Paper } from '@material-ui/core';
+import {IconButton, Card, Typography, TextField, Checkbox, Tabs, Tab, Paper } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 class TodoList extends React.Component {
@@ -12,13 +12,6 @@ class TodoList extends React.Component {
             inputText: '',
             value: 0,
         }
-    }
-    componentDidMount() {
-        console.log('did mount');
-        // this.setState({listItems: this.props.list.items});
-        // const listItems = localStorage.getItem('rememberMe') === 'true';
-        // const user = rememberMe ? localStorage.getItem('user') : '';
-        // this.setState({ user, rememberMe });
     }
 
     componentDidUpdate(prevProps) {
@@ -44,7 +37,8 @@ class TodoList extends React.Component {
     };
 
     onRemoveItem = (item) => {
-        this.setState({listItems: this.state.listItems.filter(el => el.code !== item.code)});
+        this.setState({listItems: this.state.listItems.filter(el => el.code !== item.code)},
+            () => this.props.updateListItems(this.state.listItems));
     };
 
     renderListItem = (listItem) => {

@@ -20,15 +20,12 @@ const CHARACTER_LIMIT = 60;
 
 function App() {
     const [lists, setLists] = useState(JSON.parse(localStorage.getItem('lists')) || []);
-    const [currentList, setCurrentList] = useState(lists[0] || {});
+    const [currentList, setCurrentList] = useState({});
     const [backdrop, showBackdrop] = useState(false);
     const [newListName, setListName] = useState('');
     useEffect(() => {
         localStorage.setItem('lists', JSON.stringify(lists));
     }, [lists]);
-    // useEffect(() => {
-    //     console.log('currentlist', currentList);
-    // }, [currentList]);
 
     const createNewList = async () => {
         let humanDate = getHumanReadableDate();
@@ -61,17 +58,15 @@ function App() {
         }
         setLists(listsCopy);
         // переключаемся на новый
-        newList.active = true;
+        if (Object.keys(newList).length) newList.active = true;
         setCurrentList(newList);
     };
 
     const onMakeFavorite = (currList) => {
-        console.log('currList', currList);
         const listsCopy = [...lists];
         for (let list in listsCopy) {
             if (listsCopy[list].id === currList.id) {
                 listsCopy[list].favorite = !listsCopy[list].favorite;
-                console.log('listsCopy[list]', listsCopy[list]);
             }
         }
         setLists(listsCopy);

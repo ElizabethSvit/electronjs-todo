@@ -112,7 +112,7 @@ function App() {
                 </div>
                 <LeftBar lists={lists} onClick={newList => onListClick(newList)} onMakeFavorite={onMakeFavorite}/>
             </div>
-            <Divider orientation="vertical" flexItem style={{height: '100%'}}/>
+            <Divider orientation="vertical" flexItem />
             <div style={{display: 'flex', justifyContent: 'center', width: '100%'}}>
                 <TodoList list={currentList} updateListItems={updateListItems}/>
             </div>
